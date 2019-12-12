@@ -195,17 +195,21 @@ func (s *Session) Save() error {
 func (s *Session) startSaveLoop() {
 	s.tick = time.NewTicker(s.opts.SyncFrequency)
 
+	var now = time.Now()
+
 	for {
+		// check all projects and mark timeout if needed
+		s.timeoutProjects(s.timeout, uint64(now.UnixNano()))
+
+		if err := s.Save(); err != nil {
+			log.Println("ERROR while saving:", err)
+		}
+
 		select {
 		case <-s.stop:
 			return
-		case now := <-s.tick.C:
-			// check all projects and mark timeout if needed
-			s.timeoutProjects(s.timeout, uint64(now.UnixNano()))
-
-			if err := s.Save(); err != nil {
-				log.Println("ERROR while saving:", err)
-			}
+		case now = <-s.tick.C:
+			continue
 		}
 	}
 }

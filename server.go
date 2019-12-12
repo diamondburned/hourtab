@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 	"os/signal"
 
@@ -16,6 +17,8 @@ func server(c *cli.Context) error {
 
 	s.Start()
 	defer s.Stop()
+
+	log.Println("Started server")
 
 	// block until sigint
 	sig := make(chan os.Signal)
